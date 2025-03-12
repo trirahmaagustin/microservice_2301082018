@@ -49,9 +49,4 @@ public class ProdukService {
                .orElseThrow(() -> new RuntimeException("Produk tidak ditemukan dengan id " + id));
        produkRepository.delete(produk);
    }
-
-   public boolean existsById(Long productId) {
-    return produkRepository.existsById(productId);
-   }
-
 }
