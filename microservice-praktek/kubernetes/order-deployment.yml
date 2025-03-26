@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order
+  labels:
+    app: order
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order
+  template:
+    metadata:
+      labels:
+        app: order
+    spec:
+      containers:
+      - name: order
+        image: trirahmaagustin/order:1.0.0
+        ports:
+        - containerPort: 8083
+        env:
+        - name: spring.application.name
+          value: "order"
+        - name: eureka.client.service-url.defaultZone
+          value: "http://eurekaserver:8761/eureka/"
+        - name: spring.datasource.url
+          value: "jdbc:mysql://mysql:3306/dbecommerce_order?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
+        - name: spring.datasource.username
+          value: "root"
+        - name: spring.datasource.password
+          value: "root_password"
+        - name: spring.datasource.driver-class-name
+          value: "com.mysql.cj.jdbc.Driver"
+        - name: spring.jpa.hibernate.ddl-auto
+          value: "update"
+        - name: spring.rabbitmq.host
+          value: "rabbitmq"
+        - name: spring.rabbitmq.port
+          value: "5672"
+        - name: spring.rabbitmq.username
+          value: "guest"
+        - name: spring.rabbitmq.password
+          value: "guest"
+        resources:
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8083
+          initialDelaySeconds: 90
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8083
+          initialDelaySeconds: 30
+          periodSeconds: 15
+        startupProbe:
+          httpGet:
+            path: /actuator/health
+            port: 8083
+          failureThreshold: 30
+          periodSeconds: 10
